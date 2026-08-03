@@ -6,14 +6,14 @@ import Journal from './Journal'
 import Program from './Program'
 import Requests from './Requests'
 import Incident from './Incident'
+import Students from './Students'
+import Absences from './Absences'
 
 function App() {
   const { user, loading, signOut } = useAuth()
 
   if (loading) {
-    return (
-      <div style={s.loader}>كنحمّل...</div>
-    )
+    return <div style={s.loader}>كنحمّل...</div>
   }
 
   if (!user) {
@@ -26,6 +26,8 @@ function App() {
         <div style={s.navLinks}>
           <NavLink to="/" style={navStyle} end>المذكرة اليومية</NavLink>
           <NavLink to="/program" style={navStyle}>البرمجة السنوية</NavLink>
+          <NavLink to="/students" style={navStyle}>التلاميذ</NavLink>
+          <NavLink to="/absences" style={navStyle}>سجل الغياب</NavLink>
           <NavLink to="/requests" style={navStyle}>الطلبات الإدارية</NavLink>
           <NavLink to="/incident" style={navStyle}>تقرير حادثة</NavLink>
           <NavLink to="/settings" style={navStyle}>الإعدادات</NavLink>
@@ -39,6 +41,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Journal />} />
         <Route path="/program" element={<Program />} />
+        <Route path="/students" element={<Students />} />
+        <Route path="/absences" element={<Absences />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/incident" element={<Incident />} />
         <Route path="/settings" element={<Settings />} />
