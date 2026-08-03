@@ -57,19 +57,19 @@ export default function Settings({ onDone }) {
         <p style={st.sub}>عمّر هاد المعلومات مرة وحدة — غادي تتعبّا أوتوماتيك فالمذكرة والطباعة.</p>
 
         <label style={st.label}>الاسم الكامل *</label>
-        <input style={st.input} value={form.full_name} onChange={set('full_name')} placeholder="مثلا: عبد العزيز علال" />
+        <input style={st.input} value={form.full_name} onChange={set('full_name')} placeholder="الاسم الكامل" />
 
         <label style={st.label}>اسم المؤسسة</label>
-        <input style={st.input} value={form.school_name} onChange={set('school_name')} placeholder="مثلا: مجموعة مدارس..." />
+        <input style={st.input} value={form.school_name} onChange={set('school_name')} placeholder="اسم المؤسسة" />
 
         <div style={st.row}>
           <div style={st.col}>
             <label style={st.label}>الأكاديمية الجهوية</label>
-            <input style={st.input} value={form.academy} onChange={set('academy')} placeholder="جهة الشرق" />
+            <input style={st.input} value={form.academy} onChange={set('academy')} placeholder="الأكاديمية الجهوية" />
           </div>
           <div style={st.col}>
             <label style={st.label}>المديرية الإقليمية</label>
-            <input style={st.input} value={form.direction} onChange={set('direction')} placeholder="فجيج" />
+            <input style={st.input} value={form.direction} onChange={set('direction')} placeholder="المديرية الإقليمية" />
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export default function Settings({ onDone }) {
         </div><div style={st.row}>
           <div style={st.col}>
             <label style={st.label}>رقم التأجير (PPR)</label>
-            <input style={st.input} value={form.ppr} onChange={set('ppr')} placeholder="مثلا: 1549809" dir="ltr" />
+            <input style={st.input} value={form.ppr} onChange={set('ppr')} placeholder="رقم التأجير" dir="ltr" />
           </div>
           <div style={st.col}>
             <label style={st.label}>الصفة / الدرجة</label>
