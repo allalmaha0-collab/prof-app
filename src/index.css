@@ -1,0 +1,22 @@
+:root {
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font: 16px/145% var(--sans);
+  color: #08060d;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@media print {
+  nav, .no-print { display: none !important; }
+  body { background: #fff !important; }
+  .print-sheet { display: block !important; padding: 0 !important; }
+}
