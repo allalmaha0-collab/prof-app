@@ -51,10 +51,13 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      <footer style={s.footer} className="no-print">
+        التطبيق من تصميم وإعداد الأستاذ عزيز
+      </footer>
     </div>
   )
 }
-
 const navStyle = ({ isActive }) => ({
   padding: '8px 16px', borderRadius: '8px', textDecoration: 'none',
   fontSize: '15px', fontWeight: 600,
@@ -75,7 +78,10 @@ const s = {
   navLinks: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
   navRight: { display: 'flex', alignItems: 'center', gap: '12px' },
   email: { color: '#94a3b8', fontSize: '13px' },
-  logout: {
+  logout: {footer: {
+    textAlign: 'center', padding: '20px', color: '#94a3b8',
+    fontSize: '13px', direction: 'rtl',
+  },
     padding: '6px 16px', background: '#ef4444', color: '#fff',
     border: 'none', borderRadius: '8px', fontSize: '14px',
     fontWeight: 600, cursor: 'pointer',

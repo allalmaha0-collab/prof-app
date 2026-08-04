@@ -115,12 +115,14 @@ export default function Auth() {
 
         {message && <p style={styles.message}>{message}</p>}
 
-        <button
+       <button
           style={styles.switch}
           onClick={() => { setIsSignUp(!isSignUp); setMessage('') }}
         >
           {isSignUp ? 'عندك حساب؟ دخل' : 'ماعندكش حساب؟ صايب واحد'}
         </button>
+
+        <p style={styles.credit}>التطبيق من تصميم وإعداد الأستاذ عزيز</p>
       </div>
     </div>
   )
@@ -162,5 +164,9 @@ const styles = {
   switch: {
     width: '100%', marginTop: '16px', background: 'none', border: 'none',
     color: '#0ea5e9', cursor: 'pointer', fontSize: '14px',
+  },
+  credit: {
+    marginTop: '20px', textAlign: 'center', color: '#94a3b8',
+    fontSize: '12px', paddingTop: '16px', borderTop: '1px solid #e2e8f0',
   },
 }
