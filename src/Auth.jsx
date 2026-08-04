@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useAuth } from './AuthContext'
+import { supabase } from './supabaseClient'
 
 export default function Auth() {
   const { signIn, signUp } = useAuth()
   const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [inviteCode, setInviteCode] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -20,19 +22,56 @@ export default function Auth() {
       return
     }
 
-    setLoading(true)
-    const { error } = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password)
-    setLoading(false)
+    // عند التسجيل: نتحقق من كود الدعوة أولاً
+    if (isSignUp) {
+      if (!inviteCode.trim()) {
+        setMessage('عمّر كود الدعوة')
+        return
+      }
+      setLoading(true)
+      const { data: codeRow, error: codeErr } = await supabase
+        .from('invite_codes')
+        .select('*')
+        .eq('code', inviteCode.trim())
+        .maybeSingle()
 
-    if (error) {
-      setMessage(traduireErreur(error.message))
-    } else if (isSignUp) {
+      if (codeErr || !codeRow) {
+        setLoading(false)
+        setMessage('كود الدعوة غير صحيح')
+        return
+      }
+      if (codeRow.used) {
+        setLoading(false)
+        setMessage('هاد الكود مستعمل من قبل')
+        return
+      }
+
+      const { error } = await signUp(email, password)
+      if (error) {
+        setLoading(false)
+        setMessage(traduireErreur(error.message))
+        return
+      }
+
+      await supabase
+        .from('invite_codes')
+        .update({ used: true, used_by: email, used_at: new Date().toISOString() })
+        .eq('id', codeRow.id)
+
+      setLoading(false)
       setMessage('تسجيل ناجح! دابا تقدر تدخل.')
       setIsSignUp(false)
+      setInviteCode('')
+      return
     }
-    // إلا الدخول نجح، AuthContext غادي يبدّل الصفحة أوتوماتيك
+
+   // عند الدخول: بلا كود
+    setLoading(true)
+    const { error } = await signIn(email, password)
+    setLoading(false)
+    if (error) {
+      setMessage(traduireErreur(error.message))
+    }
   }
 
   return (
@@ -59,7 +98,16 @@ export default function Auth() {
           onChange={(e) => setPassword(e.target.value)}
           dir="ltr"
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-        />
+        />{isSignUp && (
+          <input
+            style={styles.input}
+            type="text"
+            placeholder="كود الدعوة"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            dir="ltr"
+          />
+        )}
 
         <button style={styles.button} onClick={handleSubmit} disabled={loading}>
           {loading ? '...' : isSignUp ? 'صايب الحساب' : 'دخل'}

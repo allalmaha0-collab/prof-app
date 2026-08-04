@@ -12,6 +12,7 @@ export default function Absences() {
   const [tab, setTab] = useState('daily')          // 'daily' | 'monthly'
   const [students, setStudents] = useState([])
   const [absences, setAbsences] = useState([])
+  const [holidays, setHolidays] = useState([])
 
   // الإدخال اليومي
   const [selClass, setSelClass] = useState('')
@@ -27,7 +28,7 @@ export default function Absences() {
   const [msg, setMsg] = useState('')
   const flash = (t) => { setMsg(t); setTimeout(() => setMsg(''), 3000) }
 
-  const load = async () => {
+ const load = async () => {
     const { data: st } = await supabase
       .from('students').select('*')
       .order('class_name').order('last_name')
@@ -36,6 +37,10 @@ export default function Absences() {
     const { data: ab } = await supabase
       .from('absences').select('*')
     setAbsences(ab || [])
+
+    const { data: hol } = await supabase
+      .from('holidays').select('*')
+    setHolidays(hol || [])
   }
 
   useEffect(() => { load() }, [])
@@ -100,6 +105,22 @@ export default function Absences() {
     const am = absences.find(a => a.student_id === studentId && a.absence_date === dateStr && a.session === 'am')
     const pm = absences.find(a => a.student_id === studentId && a.absence_date === dateStr && a.session === 'pm')
    return { am, pm }
+  }// واش هاد اليوم عطلة؟ (عطلة مسجّلة أو الأحد)
+  const isHoliday = (day) => {
+    const date = new Date(selYear, selMonth, day)
+    if (date.getDay() === 0) return { name: 'الأحد', isSunday: true }
+    const dateStr = `${selYear}-${String(selMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    const hol = holidays.find(h => dateStr >= h.start_date && dateStr <= h.end_date)
+    return hol ? { name: hol.name, isSunday: false } : null
+  }
+
+  // عدد أيام العطل (المسجّلة + الآحاد) فالشهر
+  const holidayDaysInMonth = () => {
+    let count = 0
+    for (const day of monthDays) {
+      if (isHoliday(day)) count++
+    }
+    return count
   }
 
   // إحصاء غياب تلميذ فالشهر (عدد الحصص)
@@ -121,8 +142,10 @@ export default function Absences() {
       a => a.absence_date.startsWith(prefix) &&
         monthStudents.some(st => st.id === a.student_id)
     ).length
-    const studyHalfDays = monthStudents.length * daysInMonth * 2
-    if (studyHalfDays === 0) return 0
+    // أيام الدراسة الفعلية = أيام الشهر − أيام العطل (والآحاد)
+    const studyDays = daysInMonth - holidayDaysInMonth()
+    const studyHalfDays = monthStudents.length * studyDays * 2
+    if (studyHalfDays <= 0) return 0
     return ((totalAbsences / studyHalfDays) * 100).toFixed(2)
   }
 
@@ -271,8 +294,17 @@ export default function Absences() {
                           <tr key={st.id}>
                             <td style={s.gCell}>{i + 1}</td>
                             <td style={s.gName}>{st.last_name} {st.first_name}</td>
-                            {monthDays.map(d => {
+                           {monthDays.map(d => {
+                              const hol = isHoliday(d)
                               const { am, pm } = dayAbsence(st.id, d)
+                              if (hol) {
+                                return (
+                                  <>
+                                    <td key={`${d}-am`} style={{ ...s.gMark, ...s.markHoliday }}></td>
+                                    <td key={`${d}-pm`} style={{ ...s.gMark, ...s.markHoliday }}></td>
+                                  </>
+                                )
+                              }
                               return (
                                 <>
                                   <td key={`${d}-am`} style={{ ...s.gMark, ...(am ? (am.justified ? s.markJust : s.markUnjust) : {}) }}>
@@ -332,8 +364,17 @@ export default function Absences() {
                   <tr key={st.id}>
                     <td style={s.pgCell}>{i + 1}</td>
                     <td style={s.pgNameCell}>{st.last_name} {st.first_name}</td>
-                    {monthDays.map(d => {
+                   {monthDays.map(d => {
+                      const hol = isHoliday(d)
                       const { am, pm } = dayAbsence(st.id, d)
+                      if (hol) {
+                        return (
+                          <>
+                            <td key={`${d}-am`} style={{ ...s.pgMark, ...s.pgHoliday }}></td>
+                            <td key={`${d}-pm`} style={{ ...s.pgMark, ...s.pgHoliday }}></td>
+                          </>
+                        )
+                      }
                       return (
                         <>
                           <td key={`${d}-am`} style={s.pgMark}>{am ? (am.justified ? 'م' : '✕') : ''}</td>
@@ -391,6 +432,7 @@ export default function Absences() {
   gMark: { border: '1px solid #e2e8f0', padding: '2px', textAlign: 'center', minWidth: '16px', fontWeight: 700, fontSize: '10px' },
   markUnjust: { background: '#fee2e2', color: '#dc2626' },
   markJust: { background: '#dcfce7', color: '#16a34a' },
+  markHoliday: { background: '#e2e8f0' },
   gTotal: { border: '1px solid #e2e8f0', padding: '4px', textAlign: 'center', fontWeight: 700, color: '#0f172a', background: '#f8fafc' },
   legend: { marginTop: '12px', fontSize: '13px', color: '#64748b' },percentBox: { marginTop: '14px', padding: '12px 16px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '10px', fontSize: '15px', color: '#0369a1', display: 'inline-block' },
 
@@ -406,6 +448,7 @@ export default function Absences() {
   pgCell: { border: '1px solid #333', padding: '2px', textAlign: 'center' },
   pgNameCell: { border: '1px solid #333', padding: '2px 5px', whiteSpace: 'nowrap', fontSize: '9px' },
   pgMark: { border: '1px solid #333', padding: '1px', textAlign: 'center', minWidth: '10px', fontWeight: 700 },
+  pgHoliday: { background: '#d0d0d0' },
   pgTotal: { border: '1px solid #333', padding: '2px', textAlign: 'center', fontWeight: 700, background: '#f0f0f0' },
   pPercent: { marginTop: '14px', fontSize: '13px', fontWeight: 700, textAlign: 'center' },
   pLegend: { marginTop: '10px', fontSize: '11px', textAlign: 'center' },

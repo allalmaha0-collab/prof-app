@@ -8,6 +8,7 @@ import Requests from './Requests'
 import Incident from './Incident'
 import Students from './Students'
 import Absences from './Absences'
+import Holidays from './Holidays'
 
 function App() {
   const { user, loading, signOut } = useAuth()
@@ -28,6 +29,7 @@ function App() {
           <NavLink to="/program" style={navStyle}>البرمجة السنوية</NavLink>
           <NavLink to="/students" style={navStyle}>التلاميذ</NavLink>
           <NavLink to="/absences" style={navStyle}>سجل الغياب</NavLink>
+          <NavLink to="/holidays" style={navStyle}>العطل</NavLink>
           <NavLink to="/requests" style={navStyle}>الطلبات الإدارية</NavLink>
           <NavLink to="/incident" style={navStyle}>تقرير حادثة</NavLink>
           <NavLink to="/settings" style={navStyle}>الإعدادات</NavLink>
@@ -43,6 +45,7 @@ function App() {
         <Route path="/program" element={<Program />} />
         <Route path="/students" element={<Students />} />
         <Route path="/absences" element={<Absences />} />
+        <Route path="/holidays" element={<Holidays />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/incident" element={<Incident />} />
         <Route path="/settings" element={<Settings />} />

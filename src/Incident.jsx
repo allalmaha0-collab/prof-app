@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { useAuth } from './AuthContext'
+import { checkAiLimit, recordAiUsage } from './aiLimit'
 
 const EMPTY = {
   student_name: '', student_class: '', incident_date: new Date().toISOString().split('T')[0],
@@ -41,9 +42,13 @@ export default function Incident() {
     reader.onload = () => setPhoto(reader.result)
     reader.readAsDataURL(file)
   }// توليد وصف رسمي للحادثة بالذكاء الاصطناعي
-  const generate = async () => {
+ const generate = async () => {
     if (!form.student_name.trim()) { flash('عمّر اسم التلميذ أولاً'); return }
     if (!form.raw_desc.trim()) { flash('عمّر وصفاً مختصراً للحادثة'); return }
+
+    const limit = await checkAiLimit(user.id)
+    if (!limit.allowed) { flash(limit.message); return }
+
     setAiBusy(true)
     setMsg('')
     setOutput('')
@@ -73,6 +78,7 @@ export default function Incident() {
       const txt = (data?.answer || '').trim()
       if (!txt) { flash('ماتولّد حتى نص، عاود المحاولة'); setAiBusy(false); return }
       setOutput(txt)
+      await recordAiUsage(user.id)
       flash('تولّد التقرير — راجعو قبل الطباعة')
     } catch (e) {
       flash('وقع خطأ، عاود المحاولة')

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { useAuth } from './AuthContext'
+import { checkAiLimit, recordAiUsage } from './aiLimit'
 
 // أنواع الطلبات + الحقول الخاصة بكل نوع
 const REQUEST_TYPES = {
@@ -70,11 +71,15 @@ export default function Requests() {
   const setField = (k, v) => setFields(f => ({ ...f, [k]: v }))
 
   // توليد الطلب بالذكاء الاصطناعي
-  const generate = async () => {
+ const generate = async () => {
     if (!settings?.full_name) {
       flash('عمّر الإعدادات أولاً (الاسم، المؤسسة، رقم التأجير)')
       return
     }
+
+    const limit = await checkAiLimit(user.id)
+    if (!limit.allowed) { flash(limit.message); return }
+
     setAiBusy(true)
     setMsg('')
     setOutput('')
@@ -110,6 +115,7 @@ export default function Requests() {
       const txt = (data?.answer || '').trim()
       if (!txt) { flash('ماتولّد حتى نص، عاود المحاولة'); setAiBusy(false); return }
       setOutput(txt)
+      await recordAiUsage(user.id)
       flash('تولّد الطلب — راجعو قبل الطباعة')
     } catch (e) {
       flash('وقع خطأ، عاود المحاولة')

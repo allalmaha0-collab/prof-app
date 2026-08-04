@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
 import { useAuth } from './AuthContext'
+import { checkAiLimit, recordAiUsage } from './aiLimit'
 
 const STAGES = ['طقس الافتتاح','تسجيل الحضور','النشاط الاعتيادي','التهيئة','مراجعة المكتسبات','التصريح بالهدف','النمذجة','الممارسة الموجهة','الممارسة المستقلة','التقويم','الدعم والمعالجة','طقس اختتام الحصة']
 const SUBJECTS = ['اللغة العربية','اللغة الفرنسية','الرياضيات','النشاط العلمي','الاجتماعيات','التربية الإسلامية','اللغة الإنجليزية','التربية الفنية','التربية البدنية']
@@ -211,6 +212,11 @@ export default function Journal() {
   // ═══ توليد المذكرة بالذكاء الاصطناعي (Gemini) ═══
   const generateAI = async () => {
     if (!form.lesson_title.trim()) { flash('أدخل عنوان الدرس أولاً'); return }
+
+    // فحص الحد اليومي
+    const limit = await checkAiLimit(user.id)
+    if (!limit.allowed) { flash(limit.message); return }
+
     setAiBusy(true)
     setMsg('')
 
@@ -240,7 +246,8 @@ export default function Journal() {
           learner_activity: a.learner_activity || '', tools: a.tools || '', evaluation: a.evaluation || '',
         })))
       }
-      flash('تولّدات المذكرة — راجعها وعدّلها قبل الحفظ')
+     await recordAiUsage(user.id)
+      flash(`تولّدات المذكرة — راجعها وعدّلها (باقي ليك ${limit.remaining - 1} اليوم)`)
     } catch (e) {
       flash('تعذّر تحليل نتيجة الذكاء الاصطناعي، حاول مرة أخرى')
     }
