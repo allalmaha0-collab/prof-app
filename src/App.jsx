@@ -12,6 +12,7 @@ import Holidays from './Holidays'
 import Profile from './Profile'
 import Workshop from './Workshop'
 import Resources from './Resources'
+import Posters from './Posters'
 
 function App() {
   const { user, loading, signOut } = useAuth()
@@ -39,6 +40,7 @@ function App() {
           <NavLink to="/settings" style={navStyle}>الإعدادات</NavLink>
                     <NavLink to="/workshop" style={navStyle}>تقرير الورشات</NavLink>
                               <NavLink to="/resources" style={navStyle}>مكتبة الموارد</NavLink>
+                                        <NavLink to="/posters" style={navStyle}>الملصقات</NavLink>
         </div>
         <div style={s.navRight}>
           <span dir="ltr" style={s.email}>{user.email}</span>
@@ -57,6 +59,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
                 <Route path="/workshop" element={<Workshop />} />
                         <Route path="/resources" element={<Resources />} />
+                                <Route path="/posters" element={<Posters />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
