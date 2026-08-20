@@ -9,6 +9,9 @@ import Incident from './Incident'
 import Students from './Students'
 import Absences from './Absences'
 import Holidays from './Holidays'
+import Profile from './Profile'
+import Workshop from './Workshop'
+import Resources from './Resources'
 
 function App() {
   const { user, loading, signOut } = useAuth()
@@ -32,7 +35,10 @@ function App() {
           <NavLink to="/holidays" style={navStyle}>العطل</NavLink>
           <NavLink to="/requests" style={navStyle}>الطلبات الإدارية</NavLink>
           <NavLink to="/incident" style={navStyle}>تقرير حادثة</NavLink>
+          <NavLink to="/profile" style={navStyle}>الملف المهني</NavLink>
           <NavLink to="/settings" style={navStyle}>الإعدادات</NavLink>
+                    <NavLink to="/workshop" style={navStyle}>تقرير الورشات</NavLink>
+                              <NavLink to="/resources" style={navStyle}>مكتبة الموارد</NavLink>
         </div>
         <div style={s.navRight}>
           <span dir="ltr" style={s.email}>{user.email}</span>
@@ -48,6 +54,9 @@ function App() {
         <Route path="/holidays" element={<Holidays />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/incident" element={<Incident />} />
+        <Route path="/profile" element={<Profile />} />
+                <Route path="/workshop" element={<Workshop />} />
+                        <Route path="/resources" element={<Resources />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -58,6 +67,7 @@ function App() {
     </div>
   )
 }
+
 const navStyle = ({ isActive }) => ({
   padding: '8px 16px', borderRadius: '8px', textDecoration: 'none',
   fontSize: '15px', fontWeight: 600,
@@ -78,13 +88,14 @@ const s = {
   navLinks: { display: 'flex', gap: '8px', flexWrap: 'wrap' },
   navRight: { display: 'flex', alignItems: 'center', gap: '12px' },
   email: { color: '#94a3b8', fontSize: '13px' },
-  logout: {footer: {
-    textAlign: 'center', padding: '20px', color: '#94a3b8',
-    fontSize: '13px', direction: 'rtl',
-  },
+  logout: {
     padding: '6px 16px', background: '#ef4444', color: '#fff',
     border: 'none', borderRadius: '8px', fontSize: '14px',
     fontWeight: 600, cursor: 'pointer',
+  },
+  footer: {
+    textAlign: 'center', padding: '20px', color: '#94a3b8',
+    fontSize: '13px', direction: 'rtl',
   },
 }
 
